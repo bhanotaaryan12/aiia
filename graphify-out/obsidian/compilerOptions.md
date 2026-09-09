@@ -1,0 +1,31 @@
+---
+source_file: "frontend/tsconfig.json"
+type: "code"
+community: "TypeScript Configuration Settings"
+location: "L2"
+tags:
+  - graphify/code
+  - graphify/EXTRACTED
+  - community/TypeScript_Configuration_Settings
+---
+
+# compilerOptions
+
+## Connections
+- [[allowJs]] - `contains` [EXTRACTED]
+- [[esModuleInterop]] - `contains` [EXTRACTED]
+- [[incremental]] - `contains` [EXTRACTED]
+- [[isolatedModules]] - `contains` [EXTRACTED]
+- [[jsx]] - `contains` [EXTRACTED]
+- [[lib]] - `contains` [EXTRACTED]
+- [[module]] - `contains` [EXTRACTED]
+- [[moduleResolution]] - `contains` [EXTRACTED]
+- [[noEmit]] - `contains` [EXTRACTED]
+- [[paths]] - `contains` [EXTRACTED]
+- [[plugins]] - `contains` [EXTRACTED]
+- [[resolveJsonModule]] - `contains` [EXTRACTED]
+- [[skipLibCheck]] - `contains` [EXTRACTED]
+- [[strict]] - `contains` [EXTRACTED]
+- [[tsconfig.json]] - `contains` [EXTRACTED]
+
+#graphify/code #graphify/EXTRACTED #community/TypeScript_Configuration_Settings

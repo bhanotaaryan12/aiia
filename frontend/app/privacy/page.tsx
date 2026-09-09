@@ -1,0 +1,8 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+
+export const metadata: Metadata = { title: "Privacy policy", description: "Privacy information for the AIIA Study Workspace presentation prototype.", alternates: { canonical: "/privacy" } };
+
+export default function PrivacyPage() {
+  return <main className="mx-auto min-h-screen max-w-3xl px-5 py-14"><Link href="/login" className="text-sm font-medium text-teal-800 underline underline-offset-2">Back to sign in</Link><h1 className="mt-8 text-3xl font-semibold text-slate-950">Privacy policy</h1><p className="mt-4 text-sm leading-7 text-slate-600">This presentation prototype is designed to demonstrate a study-governance interface. It must not be used to collect, enter, or process patient information.</p><section className="mt-9 space-y-7 text-sm leading-7 text-slate-700"><div><h2 className="text-lg font-semibold text-slate-950">What this demo stores</h2><p>Essential browser storage may retain the sign-in session state and your cookie preference on this device. The demonstration should contain no personal, clinical, or study data.</p></div><div><h2 className="text-lg font-semibold text-slate-950">Analytics and sharing</h2><p>This prototype does not include advertising trackers, fake reviews, or third-party analytics by default. Do not add external tracking without a documented lawful basis and consent process.</p></div><div><h2 className="text-lg font-semibold text-slate-950">Contact and changes</h2><p>For a production deployment, replace this page with organisation-approved privacy information, a contact channel, retention periods, and applicable jurisdiction-specific disclosures.</p></div></section></main>;
+}

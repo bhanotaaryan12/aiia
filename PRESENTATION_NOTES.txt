@@ -1,0 +1,263 @@
+================================================================================
+AIIA CLINICAL TRIAL MANAGEMENT SYSTEM (CTMS)
+COMPREHENSIVE PRESENTATION NOTES & ARCHITECTURAL REFERENCE GUIDE
+================================================================================
+
+Target Audience: Clinical Stakeholders, Technical Evaluators, Regulators & Investigators
+System Version: 0.1.0-demo
+Prepared For: Live Walkthrough & Evaluation
+
+--------------------------------------------------------------------------------
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. EXECUTIVE SUMMARY & CORE MISSION
+2. HIGH-LEVEL ARCHITECTURE & TECHNOLOGY STACK
+3. REGULATORY COMPLIANCE & CLINICAL DATA STANDARDS
+4. CONTEXT MEMORY ENGINE (GRAPHIFY-POWERED KNOWLEDGE GRAPH)
+5. DEMONSTRATION SCRIPT & WALKTHROUGH FLOW (STEP-BY-STEP)
+6. ROLE-BASED ACCESS CONTROL (RBAC) & CREDENTIALS
+7. TESTING & VERIFICATION SUMMARY
+8. ANTICIPATED AUDIENCE Q&A / TALKING POINTS
+
+
+================================================================================
+1. EXECUTIVE SUMMARY & CORE MISSION
+================================================================================
+The AIIA CTMS is a cloud-ready, real-time Clinical Trial Management System 
+specifically tailored for Ayurveda clinical research (Rasayana, Panchakarma, 
+herbal formulations). 
+
+Key Differentiators:
+* Rigorous Compliance: Built around CDSCO Good Clinical Practice (GCP) and New 
+  Drugs and Clinical Trials (NDCT) Rules 2019.
+* Global Standards: Native CDISC (CDASH collection, SDTM export) and HL7 FHIR R4 
+  interoperability.
+* AI-Powered Context Memory: Integrates a deterministic and semantic knowledge 
+  graph engine (powered by Graphify) allowing multi-tenant, privacy-isolated 
+  conversational memory for investigators and study teams.
+* Presentation Safety: Features dedicated, strictly isolated presentation safeguards 
+  and mock walkthrough records that guarantee zero exposure of live patient or trial data.
+
+
+================================================================================
+2. HIGH-LEVEL ARCHITECTURE & TECHNOLOGY STACK
+================================================================================
+
+Architecture Layers:
+-------------------
+[ Client Layer ]
+  └── Next.js 14 (App Router) + React 18 + TypeScript + Tailwind CSS
+  └── Lucide Icons, Recharts Data Visualizations, React Hook Form + Zod Validation
+  └── Responsive, modern dashboard with accessible presentation cards
+
+[ API & Business Logic Layer ]
+  └── FastAPI (Python 3.12, Async-First ASGI Server via Uvicorn)
+  └── Role-Based Access Control (RBAC) supporting 10 distinct clinical roles
+  └── JWT Authentication (Access + Refresh tokens with bcrypt password hashing)
+  └── Pydantic v2 Schema validation for strict request/response contracts
+
+[ Context Memory & Graph Engine Layer ]
+  └── Graphify SDK + NetworkX Graph Assembly
+  └── Multi-Factor Ranking Engine (combining relevance, proximity, confidence, recency)
+  └── Tenant-isolated JSON disk storage with SHA-256 hashed namespaces
+  └── Autonomous fact and preference extraction with confidence classification
+
+[ Persistence & Database Layer ]
+  └── PostgreSQL 16+ / SQLite (aiosqlite Async engine) via SQLAlchemy 2.0
+  └── 40+ Relational tables with UUID Primary Keys
+  └── Immutable append-only audit trail and soft-delete design patterns
+
+[ Deployment & Cloud Infrastructure ]
+  └── Docker Compose multi-container configuration
+  └── Cloud Run / Cloud SQL (GCP ready) with secret management integration
+
+
+================================================================================
+3. REGULATORY COMPLIANCE & CLINICAL DATA STANDARDS
+================================================================================
+
+1. NDCT Rules 2019 & CTRI Tracking:
+   - Central & Institutional Ethics Committee (IEC) review and approval tracking.
+   - 30-day expiry warning triggers and automated protocol amendment versioning.
+   - Clinical Trials Registry - India (CTRI) registration milestone workflows.
+
+2. Pharmacovigilance & Safety Surveillance:
+   - Strict 24-hour escalation rule for Serious Adverse Events (SAEs) to CDSCO.
+   - Causality assessment algorithms and adverse event clustering for signal detection.
+   - Data and Safety Monitoring Board (DSMB) review milestones.
+
+3. CDISC Interoperability:
+   - Standardized CDASH-style electronic Case Report Forms (eCRFs).
+   - Instant SDTM dataset generation for Demographics (DM), Subject Visits (SV),
+     and Adverse Events (AE) domains with automated schema verification.
+
+4. HL7 FHIR R4 API Endpoints:
+   - Interoperability endpoints serving standard FHIR resources: Patient, 
+     ResearchStudy, ResearchSubject, Observation, and AdverseEvent.
+
+
+================================================================================
+4. CONTEXT MEMORY ENGINE (GRAPHIFY-POWERED KNOWLEDGE GRAPH)
+================================================================================
+The CTMS features an advanced Context Memory Engine that maps interactions,
+preferences, and clinical facts into an evolving knowledge graph.
+
+Key Architecture Components:
+* TenantGraphStorage:
+  Guarantees 100% tenant and investigator data isolation. Each user's memory graph 
+  is persisted in a secure, hashed namespace (`user_<sha256>.json`).
+* MemoryExtractionPipeline:
+  Extracts entities (Users, Trials, Ethics Committees, Formulations, Preferences) 
+  and edges (INVESTIGATES, APPLIES, COMPLIES_WITH, PREFERS). 
+  Applies honest confidence tagging: EXTRACTED vs INFERRED.
+* MultiFactorRanker:
+  Calculates dynamic contextual relevance using:
+    Score = (w_rel * relevance) + (w_prox * proximity) + (w_conf * confidence) + (w_rec * recency)
+  Applies exponential recency decay to prevent stale memories from polluting context.
+* AgentMemoryLifecycle:
+  Acts as middleware for assistant turns:
+    - before_agent_turn: Retrieves subgraphs, ranks relevant nodes, builds ContextPackage.
+    - after_agent_turn: Ingests turns, deduplicates entities, updates graph store.
+* Codebase Knowledge Graph (Graphify Artifacts):
+  The repository itself is indexed in `graphify-out/`:
+    - 732 nodes, 1,874 edges across 56 semantic communities.
+    - Interactive visualizer in `graphify-out/graph.html`.
+    - Markdown topology report in `graphify-out/GRAPH_REPORT.md`.
+
+
+================================================================================
+5. DEMONSTRATION SCRIPT & WALKTHROUGH FLOW (STEP-BY-STEP)
+================================================================================
+
+ACT I: INTRODUCTION & ACCESS (2 Minutes)
+----------------------------------------
+1. Open Browser to `http://localhost:3000/login`.
+2. Emphasize the "Presentation access" banner:
+   "This environment runs strictly on simulated data and illustrative workflows. 
+   No live patient or identifiable health records are present."
+3. Click "Use demo account" (or sign in with `admin@aiia.gov.in` / `Demo@12345`).
+4. Land on the Main Dashboard:
+   - Highlight high-level KPIs: Active Trials, Site Distribution, Recruitment Velocity.
+   - Show the real-time notifications seeded for the Super Admin (e.g., 70.8% enrollment milestone on AYU-OA-2024).
+
+ACT II: PRESENTATION WALKTHROUGH PANELS (5 Minutes)
+---------------------------------------------------
+Navigate to Study Record (`/dashboard/study`):
+Show that these records are protected by backend gatekeepers restricted ONLY to 
+the demo account:
+
+1. Protocol Review (`/dashboard/study/protocol-review`):
+   - Review study rationale, objective, and governance scope.
+   - Mark review checklist items as covered.
+
+2. Operational Handoff (`/dashboard/study/operational-handoff`):
+   - Demonstrate the transition from protocol approval to site activation.
+
+3. Data Safeguards (`/dashboard/study/data-safeguards`):
+   - Point out explicit guarantees: presentation safety, tenant segregation.
+
+4. Clinical Site Monitoring (`/dashboard/study/clinical-monitoring`):
+   - Highlight 100% Source Data Verification (SDV) on the initial 30-patient cohort.
+   - Demonstrate investigational product reconciliation (Ashwagandha churna vs placebo).
+
+5. Safety Surveillance (`/dashboard/study/safety-surveillance`):
+   - Explain the 24-hour expedited SAE reporting trigger.
+   - Review automated signal detection clustering.
+
+6. CDISC SDTM Export (`/dashboard/study/cdisc-standards`):
+   - Walk through standardized DM, SV, and AE variable mappings ready for submission.
+
+ACT III: CONTEXT MEMORY ENGINE IN ACTION (3 Minutes)
+---------------------------------------------------
+1. Explain how the CTMS assistant remembers investigator preferences and trial context.
+2. Show the pre-seeded memory graph for `admin@aiia.gov.in` (34 nodes, 53 edges):
+   - Preference: Executive summaries in markdown tables with CDISC compliance codes.
+   - Active Trials: Monitored trials AYU-OA-2024 and AYU-DM-2024.
+   - Safety Rules: Automatic escalation of serious adverse events.
+3. Demonstrate API call or visualizer:
+   - `GET /api/v1/memory/nodes?user_id=admin@aiia.gov.in`
+   - Show how `build_context()` injects relevant subgraphs into conversation turns.
+
+ACT IV: CODEBASE TRANSPARENCY & GRAPHIFY (2 Minutes)
+----------------------------------------------------
+1. Open `graphify-out/graph.html` in the browser.
+2. Show the audience the architectural topology map:
+   - Highlight Community 5 ("Graphify Memory Extraction Pipeline").
+   - Highlight Community 10 ("Context Builder and Ranking Engine").
+   - Highlight Community 18 ("Context Memory API Routes").
+3. Emphasize that the codebase is completely documented, auditable, and free of circular dependencies.
+
+
+================================================================================
+6. ROLE-BASED ACCESS CONTROL (RBAC) & CREDENTIALS
+================================================================================
+The system features 10 distinct roles with granular backend permissions:
+
+| Role                      | Email                    | Password   | Primary Purpose                                    |
+|---------------------------|--------------------------|------------|----------------------------------------------------|
+| Super Admin (Demo Account)| admin@aiia.gov.in        | Demo@12345 | Full system oversight, demo walkthrough access    |
+| Trial Admin               | trialadmin@aiia.gov.in   | Demo@12345 | Trial setup, protocol amendments, site assignment  |
+| Principal Investigator    | pi@aiia.gov.in           | Demo@12345 | Clinical oversight, participant approvals, eCRF    |
+| Study Coordinator         | coordinator@aiia.gov.in  | Demo@12345 | Enrollment, participant visits, form data entry   |
+| Data Manager              | datamanager@aiia.gov.in  | Demo@12345 | Query resolution, data cleaning, CDISC exports     |
+| Ethics Committee          | ethics@aiia.gov.in       | Demo@12345 | Protocol review, ethics clearances, annual renewals|
+| PV Officer                | pv@aiia.gov.in           | Demo@12345 | Adverse events, safety signals, CDSCO escalations  |
+| Regulatory Officer        | regulatory@aiia.gov.in   | Demo@12345 | CTRI filings, NDCT checklist verification          |
+| Auditor                   | auditor@aiia.gov.in      | Demo@12345 | Read-only access to immutable audit trails         |
+| Viewer                    | viewer@aiia.gov.in       | Demo@12345 | Read-only executive dashboard summaries           |
+
+
+================================================================================
+7. TESTING & VERIFICATION SUMMARY
+================================================================================
+All layers of the application have been verified:
+
+* Backend Memory Test Suite (`backend/tests/test_memory_system.py`):
+  - `test_graphify_adapter_validation_and_build` [PASSED]
+  - `test_extraction_pipeline_explicit_vs_inferred` [PASSED]
+  - `test_lifecycle_ingest_and_deduplication` [PASSED]
+  - `test_build_context_format` [PASSED]
+  - `test_tenant_isolation` [PASSED]
+  - `test_forgetting_api` [PASSED]
+  Status: 6 of 6 passed in 2.37s.
+
+* API Security Isolation Gate:
+  - Verified: Non-demo user access to `/api/v1/demo/records` returns HTTP 403 Forbidden.
+  - Verified: Demo account (`admin@aiia.gov.in`) returns HTTP 200 OK with all 6 walkthrough packages.
+
+* Frontend Quality:
+  - `npx tsc --noEmit` passed with 0 TypeScript compilation errors.
+  - 83 Backend Python files compiled with 0 syntax errors.
+
+
+================================================================================
+8. ANTICIPATED AUDIENCE Q&A / TALKING POINTS
+================================================================================
+
+Q1: "How does the system ensure patient privacy during trials and demonstrations?"
+A1: Three complementary safeguards:
+    1. Architectural: Participant records use pseudonymous identifiers (e.g. AIIA-1-0001) 
+       with zero storage of direct government IDs in primary operational tables.
+    2. Demonstration Isolation: Presentation records are mock walkthrough records 
+       stored in a protected API namespace that rejects all non-demo credentials.
+    3. Multi-Tenant Memory: Memory graphs are SHA-256 hashed and isolated per tenant.
+
+Q2: "What is the difference between CDASH and SDTM in your CDISC implementation?"
+A2: CDASH governs how data is captured in forms at the clinical site (our eCRFs).
+    SDTM governs how the data is standardized and structured for submission to regulatory
+    authorities. Our system automatically transforms CDASH form submissions into
+    compliant SDTM domains (DM, SV, AE) with instant CSV/JSON exports.
+
+Q3: "Why use a graph for memory instead of simple vector search (RAG)?"
+A3: Vector search struggles with multi-hop reasoning (e.g., "Which ethics committee
+    approved the protocol amendment for the site with the highest SAE count?").
+    Graphify turns entities and relationships into a typed network, enabling exact
+    relational queries, community discovery, and honest confidence scoring without hallucination.
+
+Q4: "Can this system be deployed on institutional government servers?"
+A4: Yes. The system is containerized with Docker, supports both cloud environments (GCP Cloud Run) 
+    and completely air-gapped on-premises deployments with local PostgreSQL and local file storage.
+
+================================================================================
+END OF PRESENTATION NOTES
+================================================================================
