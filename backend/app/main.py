@@ -51,7 +51,7 @@ async def log_requests(request: Request, call_next):
     is_auth_route = request.url.path.startswith(f"{settings.API_V1_STR}/auth/")
     limit = settings.AUTH_RATE_LIMIT_REQUESTS if is_auth_route else settings.RATE_LIMIT_REQUESTS
     if not rate_limiter.allow(f"{client_ip}:{'auth' if is_auth_route else 'api'}", limit, settings.RATE_LIMIT_WINDOW_SECONDS):
-        raise HTTPException(status_code=429, detail="Too many requests. Please try again later.")
+        return JSONResponse(status_code=429, content={"detail": "Too many requests. Please try again later."})
 
     unsafe_method = request.method in {"POST", "PUT", "PATCH", "DELETE"}
     csrf_exempt = {f"{settings.API_V1_STR}/auth/login", f"{settings.API_V1_STR}/auth/refresh"}
@@ -59,7 +59,7 @@ async def log_requests(request: Request, call_next):
         cookie_token = request.cookies.get("csrf_token", "")
         header_token = request.headers.get("X-CSRF-Token", "")
         if not cookie_token or not hmac.compare_digest(cookie_token, header_token):
-            raise HTTPException(status_code=403, detail="CSRF validation failed")
+            return JSONResponse(status_code=403, content={"detail": "CSRF validation failed"})
 
     start = time.time()
     response = await call_next(request)

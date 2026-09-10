@@ -1,14 +1,15 @@
 import httpx
 
 BASE = 'http://127.0.0.1:8000/api/v1'
-client = httpx.Client(timeout=30)
+client = httpx.Client(timeout=30, follow_redirects=True)
 
 # 1. Login
 print('=== AUTH ===')
 r = client.post(f'{BASE}/auth/login', json={'email': 'admin@aiia.gov.in', 'password': 'Demo@12345'})
 assert r.status_code == 200, f'Login failed: {r.status_code}'
 token = r.json()['access_token']
-h = {'Authorization': f'Bearer {token}'}
+csrf = r.cookies.get('csrf_token', '')
+h = {'Authorization': f'Bearer {token}', 'X-CSRF-Token': csrf}
 print('Login OK')
 
 me = client.get(f'{BASE}/auth/me', headers=h).json()
@@ -96,10 +97,25 @@ print(f'Submissions: {len(subs)}')
 # 16. RBAC test
 print('\n=== RBAC TEST ===')
 vr = client.post(f'{BASE}/auth/login', json={'email': 'viewer@aiia.gov.in', 'password': 'Demo@12345'})
-vh = {'Authorization': f"Bearer {vr.json()['access_token']}"}
+vcsrf = vr.cookies.get('csrf_token', '')
+vh = {'Authorization': f"Bearer {vr.json()['access_token']}", 'X-CSRF-Token': vcsrf}
 r1 = client.get(f'{BASE}/trials/', headers=vh)
 print(f'Viewer can read trials: {r1.status_code == 200}')
 r2 = client.post(f'{BASE}/trials/', headers=vh, json={'title': 'Test'})
 print(f'Viewer blocked from creating trials: {r2.status_code == 403}')
+
+# 17. Demo Records (Demo Account Exclusive)
+print('\n=== DEMO RECORDS (EXCLUSIVE TO ADMIN DEMO ACCOUNT) ===')
+demo_res = client.get(f'{BASE}/demo/records', headers=h)
+assert demo_res.status_code == 200, f'Demo records failed: {demo_res.status_code}'
+demo_data = demo_res.json()['records']
+print(f"Protocol Review: {demo_data['protocol_review']['title']} ({len(demo_data['protocol_review']['items'])} items)")
+print(f"Operational Handoff: {demo_data['operational_handoff']['title']} ({len(demo_data['operational_handoff']['items'])} items)")
+print(f"Data Safeguards: {demo_data['data_safeguards']['title']} ({len(demo_data['data_safeguards']['items'])} items)")
+
+# Ensure viewer is blocked from demo records
+viewer_demo = client.get(f'{BASE}/demo/records', headers=vh)
+print(f"Non-demo account access blocked (HTTP 403): {viewer_demo.status_code == 403}")
+assert viewer_demo.status_code == 403
 
 print('\n=== ALL TESTS PASSED ===')
